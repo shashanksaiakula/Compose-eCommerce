@@ -1,0 +1,9 @@
+package com.example.ecommersandroid
+
+import org.junit.Rule
+
+class AddressScreenTest {
+
+    @Rule
+    val rule = 
+}

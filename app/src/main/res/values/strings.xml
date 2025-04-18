@@ -1,0 +1,29 @@
+<resources>
+    <string name="app_name">Clot App</string>
+    <string name="sing_in">Sign In</string>
+    <string name="sing_up">Sign Up</string>
+    <string name="email_address">Email Address</string>
+    <string name="password">Password</string>
+    <string name="don_t_have_an_account">Don\'t have an account ?</string>
+    <string name="create_one"> Create One</string>
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="continue_with_facebook">Continue with Facebook</string>
+    <string name="continue_with_apple">Continue with Apple</string>
+    <string name="create_accout">Create Account</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
+    <string name="forget_password">Forget Password ?</string>
+    <string name="forget_password_title">Forget Password</string>
+    <string name="add_address">Add Address</string>
+    <string name="men">Men</string>
+    <string name="women">Women</string>
+    <string name="how_old_are_you">How old are you ?</string>
+    <string name="tell_us_more">Tell us more</string>
+    <string name="who_do_you_shop_for">Who do you shop for ?</string>
+    <string name="finish">Finish</string>
+    <string name="retrun_to_sign_in">Return to Sign In</string>
+    <string name="we_sent_you_an_email">We sent you an email</string>
+    <string name="reset">Reset</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="continue_">Continue</string>
+</resources>
