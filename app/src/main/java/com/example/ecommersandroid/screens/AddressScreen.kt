@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -27,6 +28,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,162 +47,200 @@ import com.example.ecommersandroid.R
 import com.example.ecommersandroid.components.CustomButton
 import com.example.ecommersandroid.components.CustomEditField
 
+
+data class AddressScreen (
+    var street: String = "",
+    var city : String  = "",
+    var state : String = "",
+    var zip : String = ""
+    )
 @Composable
 fun AddressScreen(navController : NavController?, modifier: Modifier = Modifier) {
 
-//    Column(
-//        horizontalAlignment = Alignment.CenterHorizontally,
-//        verticalArrangement = Arrangement.Center
-//    ) {
-//        Row(
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(10.dp),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Image(
-//                painterResource(R.drawable.back_icon), contentDescription = "back button",
-//                modifier = Modifier
-//                    .size(50.dp)
-//                    .clickable {
-//                        navController?.popBackStack()
-//                    })
-//            Text(
-//                stringResource(R.string.add_address),
-//                fontWeight = FontWeight.Bold,
-//                modifier = Modifier.padding(10.dp),
-//                fontSize = 22.sp
-//            )
-//            Text("")
-//        }
-//        CustomEditField(
-//            value = "",
-//            onValueChange = {
-//                Log.e("check", "AddressScreen: $it", )
-//            }, placeholder = "Street Address",
-//            isPassword = false,
-//            error = false
-//        )
-//        CustomEditField(
-//            value = "",
-//            onValueChange = {
-//                Log.e("check", "AddressScreen: $it", )
-//            }, placeholder = "City",
-//            isPassword = false,
-//            error = false
-//        )
-//        Row{
-//            CustomEditField(
-//                modifier = Modifier.weight(1f),
-//                value = "",
-//                onValueChange = {
-//                    Log.e("check", "AddressScreen: $it", )
-//                }, placeholder = "State",
-//                isPassword = false,
-//                error = false
-//
-//            )
-//            CustomEditField(
-//                modifier = Modifier.weight(1f),
-//                value = "",
-//                onValueChange = {
-//                    Log.e("check", "Zip Coade: $it", )
-//                }, placeholder = "Zip Coade",
-//                isPassword = false,
-//                error = false
-//            )
-//        }
-//        CustomButton(
-//            buttonText = "Add address",
-//            textColor = MaterialTheme.colorScheme.inverseSurface,
-//            buttonBackGroundColor = MaterialTheme.colorScheme.primary
-//        ) {
-//
-//        }
-//                LazyColumn {
-//                    items(100, key ={it} ){
-//                        Card(
-//                            modifier = Modifier
-//                                .padding(8.dp,8.dp)
-//                                .border(
-//                                    width = 1.dp,
-//                                    color = Color.Transparent,
-//                                    shape = RoundedCornerShape(10.dp)
-//                                )
-//                        )
-//                        {
-//                            Row(
-//                                modifier = Modifier.fillMaxWidth().padding(20.dp,12.dp),
-//                                verticalAlignment = Alignment.CenterVertically,
-//                                horizontalArrangement = Arrangement.SpaceBetween
-//                            ){
-//                                Text("address $it", modifier)
-//                                Row {
-//                                   Icon(imageVector = Icons.Default.Edit, contentDescription = "edit", modifier = Modifier
-//                                       .clickable {  }
-//                                       .background(color = colorResource(R.color.buttom_backGround), shape = RectangleShape)
-//                                       .padding(10.dp))
-//                                    Spacer(Modifier.width(10.dp))
-//                                   Icon(imageVector = Icons.Default.Delete, contentDescription = "delete",
-//                                       modifier = Modifier
-//                                           .clickable {  }
-//                                           .background(color = colorResource(R.color.buttom_backGround), shape = RectangleShape)
-//                                           .padding(10.dp))
-//                                }
-//
-//                    }
-//                }
-//            }
-//        }
-//    }
+    val listAddres = remember { mutableStateListOf<AddressScreen>() }
+    var addAddress by remember { mutableStateOf(AddressScreen()) }
+    var editedIncex by remember { mutableStateOf(-1) }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Image(
+                painterResource(R.drawable.back_icon), contentDescription = "back button",
+                modifier = Modifier
+                    .size(50.dp)
+                    .clickable {
+                        navController?.popBackStack()
+                    })
+            Text(
+                stringResource(R.string.add_address),
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(10.dp),
+                fontSize = 22.sp
+            )
+            Text("")
+        }
+        CustomEditField(
+            value = addAddress.street,
+            onValueChange = { newValue ->
+                addAddress = addAddress.copy(street = newValue)
+            }, placeholder = "Street Address",
+            isPassword = false,
+            error = false
+        )
+        CustomEditField(
+            value = addAddress.city,
+            onValueChange = {
+                addAddress = addAddress.copy(city = it)
+            }, placeholder = "City",
+            isPassword = false,
+            error = false
+        )
+        Row{
+            CustomEditField(
+                modifier = Modifier.weight(1f),
+                value = addAddress.state,
+                onValueChange = {
+                    addAddress =  addAddress.copy(state = it)
+                }, placeholder = "State",
+                isPassword = false,
+                error = false
 
-    var listItem = remember { mutableStateListOf<String> (
-        "apple",
-        "banana",
-        "cherry",
-        "date",
-        "elderberry",
-        "fig",
-        "grape",
-        "honeydew",
-        "kiwi",
-        "lemon",
-        "mango",
-        "nectarine",
-        "orange",
-        "peach",
-        "quince",
-        "raspberry",
-        "strawberry",
-        "tangerine",
-        "watermelon"
-    )
+            )
+            CustomEditField(
+                modifier = Modifier.weight(1f),
+                value = addAddress.zip,
+                onValueChange = {
+                    addAddress = addAddress.copy(zip = it)
+                }, placeholder = "Zip Coade",
+                isPassword = false,
+                error = false
+            )
+        }
+        CustomButton(
+            buttonText = if(editedIncex >=0) "Update Address" else "Add address",
+            textColor = MaterialTheme.colorScheme.inverseSurface,
+            buttonBackGroundColor = MaterialTheme.colorScheme.primary
+        ) {
+            if(editedIncex >=0) {
+                listAddres[editedIncex] = addAddress
+                editedIncex =-1
+            } else {
+                if (addAddress.street.isNotEmpty() && addAddress.zip.isNotEmpty() && addAddress.city.isNotEmpty()
+                    && addAddress.state.isNotEmpty()
+                ) {
+                    listAddres.add(addAddress)
+                    Log.e("check", "AddressScreen: " + listAddres)
+                    addAddress = AddressScreen()
+                }
+            }
+        }
+                LazyColumn {
+                    itemsIndexed(listAddres) {  index,it ->
+                        Card(
+                            modifier = Modifier
+                                .padding(8.dp, 8.dp)
+                                .border(
+                                    width = 1.dp,
+                                    color = Color.Transparent,
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                        )
+                        {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(20.dp, 12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ){
+                                Text(it.toString(), modifier.weight(2.5f))
+                                Row(
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                   Icon(imageVector = Icons.Default.Edit, contentDescription = "edit", modifier = Modifier
+                                       .clickable {
+                                          addAddress = it
+                                           editedIncex = index
+
+                                       }
+                                       .background(
+                                           color = colorResource(R.color.buttom_backGround),
+                                           shape = RectangleShape
+                                       )
+                                       .padding(10.dp))
+                                    Spacer(Modifier.width(10.dp))
+                                   Icon(imageVector = Icons.Default.Delete, contentDescription = "delete",
+                                       modifier = Modifier
+                                           .clickable {
+                                               listAddres.remove(it)
+                                           }
+                                           .background(
+                                               color = colorResource(R.color.buttom_backGround),
+                                               shape = RectangleShape
+                                           )
+                                           .padding(10.dp))
+                                }
+
+                    }
+                }
+            }
+        }
     }
 
 
-    Column {
-        LazyColumn(
-            modifier = Modifier.weight(1f).fillMaxWidth()
-        ) {
-            items(listItem.size) { index ->
-                Text(text = listItem[index], modifier = Modifier.clickable {
-                    listItem.add(listItem.size , listItem[index])
-                    listItem.removeAt(index)
-
-                })
-            }
-
-        }
+//    var listItem = remember { mutableStateListOf<String> (
+//        "apple",
+//        "banana",
+//        "cherry",
+//        "date",
+//        "elderberry",
+//        "fig",
+//        "grape",
+//        "honeydew",
+//        "kiwi",
+//        "lemon",
+//        "mango",
+//        "nectarine",
+//        "orange",
+//        "peach",
+//        "quince",
+//        "raspberry",
+//        "strawberry",
+//        "tangerine",
+//        "watermelon"
+//    )
+//    }
+//
+//
+//    Column {
 //        LazyColumn(
 //            modifier = Modifier.weight(1f).fillMaxWidth()
 //        ) {
-//            items(addedList.size) { index ->
-//                Text(text = addedList[index], fontSize = 20.sp)
-//                }
+//            items(listItem.size) { index ->
+//                Text(text = listItem[index], modifier = Modifier.clickable {
+//                    listItem.add(listItem.size , listItem[index])
+//                    listItem.removeAt(index)
+//
+//                })
 //            }
+//
 //        }
-    }
+////        LazyColumn(
+////            modifier = Modifier.weight(1f).fillMaxWidth()
+////        ) {
+////            items(addedList.size) { index ->
+////                Text(text = addedList[index], fontSize = 20.sp)
+////                }
+////            }
+////        }
+
     }
 
 
