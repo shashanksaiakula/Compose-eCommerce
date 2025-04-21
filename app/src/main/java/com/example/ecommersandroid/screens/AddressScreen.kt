@@ -125,8 +125,10 @@ fun AddressScreen(navController : NavController?, modifier: Modifier = Modifier)
         }
         CustomButton(
             buttonText = if(editedIncex >=0) "Update Address" else "Add address",
-            textColor = MaterialTheme.colorScheme.inverseSurface,
-            buttonBackGroundColor = MaterialTheme.colorScheme.primary
+            textColor = Color.White,
+            buttonBackGroundColor = colorResource(
+                R.color.ylate
+            )
         ) {
             if(editedIncex >=0) {
                 listAddres[editedIncex] = addAddress

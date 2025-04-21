@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -86,8 +87,11 @@ fun CartScreen(navController: NavController,modifier: Modifier = Modifier) {
         RowText("Total","208")
         CustomEditField(value = "", onValueChange = {}, placeholder = "Enter Coupon Code", error = false, isPassword = false)
         CustomButton(buttonText = "Checkout",
-            textColor = MaterialTheme.colorScheme.inverseSurface,
-            buttonBackGroundColor =MaterialTheme.colorScheme.primaryContainer) {
+            textColor = Color.White,
+            buttonBackGroundColor = colorResource(
+                R.color.ylate
+            )
+        ){
 
         }
     }
@@ -115,7 +119,7 @@ fun CartComponet() {
         ) {
             Image(
                 painter = painterResource(R.drawable.rectangle), contentDescription = "",
-                modifier = Modifier.size(100.dp)
+                modifier = Modifier.size(100.dp).clip(shape = RoundedCornerShape(25.dp))
             )
             Column(
                 modifier = Modifier
@@ -139,7 +143,10 @@ fun CartComponet() {
                     .size(50.dp)
                     .padding(10.dp)
                     .shadow(elevation = 0.dp, shape = RoundedCornerShape(10.dp)),
-                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+                colors = ButtonDefaults.buttonColors().copy(
+                    containerColor = colorResource(R.color.ylate)
+                )
             ) {
                 Text("+", textAlign = TextAlign.Center, fontSize = 20.sp,)
             }
@@ -159,7 +166,10 @@ fun CartComponet() {
                     .size(50.dp)
                     .padding(10.dp)
                     .shadow(elevation = 0.dp, shape = RoundedCornerShape(10.dp)),
-                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
+                contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
+                colors = ButtonDefaults.buttonColors().copy(
+                    containerColor = colorResource(R.color.ylate)
+                )
             ) {
                 Text("-", textAlign = TextAlign.Center, fontSize = 20.sp,)
             }

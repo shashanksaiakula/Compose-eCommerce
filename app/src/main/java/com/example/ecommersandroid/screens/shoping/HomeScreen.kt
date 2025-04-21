@@ -1,5 +1,6 @@
 package com.example.ecommersandroid.screens.shoping
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -7,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -19,11 +19,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.magnifier
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
@@ -33,43 +32,54 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.LightGray
-import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.ecommersandroid.Navigation.NaivgationScreenConst
+import coil3.compose.AsyncImage
 import com.example.ecommersandroid.Navigation.Screen
 import com.example.ecommersandroid.R
-import java.util.Locale.Category
+import com.example.ecommersandroid.data.Product
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import java.util.Arrays
+
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
+    val context = LocalContext.current
     var isExpanded by remember { mutableStateOf(false) }
     var gender by remember { mutableStateOf("Women") }
+    var productList = remember { mutableStateListOf<Product>() }
+
+    LaunchedEffect(Unit) {
+        val jsonContent = context.assets.open("product.json").bufferedReader().use { it.readText() }
+        val productListType = object : TypeToken<List<Product>>() {}.type
+        val products: List<Product> = Gson().fromJson(jsonContent, productListType)
+        productList.addAll(products)
+
+    }
     Column(
         modifier = Modifier
             .fillMaxSize(),
@@ -146,13 +156,13 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
         Spacer(modifier = Modifier.height(10.dp))
         CategoriesComp(navController = navController)
         Spacer(modifier = Modifier.height(10.dp))
-        ShowItems()
+        ShowItems(productList)
     }
 
 }
 
 @Composable
-fun ShowItems() {
+fun ShowItems(productList: SnapshotStateList<Product>) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -180,8 +190,7 @@ fun ShowItems() {
             )
 
     }
-    val list = listOf(1,2,3,4,5,6,7,5,6,5,75,7,5,7,5,7,5,7,5,6)
-    val itemSize by remember { mutableStateOf<List<Int>>(list)}
+
 //    LazyVerticalGrid(
 //        modifier = Modifier,
 //        columns = GridCells.Fixed(2),
@@ -202,17 +211,43 @@ fun ShowItems() {
 //    }
     LazyColumn(
     ) {
-        items(itemSize.chunked(2)) {
-           Row {
-               it.forEach{
-                   Image(
-                       painter = painterResource(R.drawable.rectangle),
-                       contentDescription = "icon",
-                       modifier = Modifier.padding(10.dp).weight(1f),
-                   )
-               }
-           }
-
+        items(productList.chunked(2)) {
+            Row {
+                it.forEach { product ->
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(10.dp)
+                            .border(width = 1.dp, shape = RoundedCornerShape(10.dp), color = Color.Gray)
+                            .height(250.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        AsyncImage(
+                            model = product.thumbnail,
+                            contentDescription = "icon",
+                            modifier = Modifier
+                                .height(120.dp)
+                                .padding(10.dp)
+                                .weight(1f),
+                            contentScale = ContentScale.Fit,
+                            onError = { error ->
+                                Log.e("ImageLoading", "Error loading image: ${error.result.throwable}")
+                            }
+                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp)
+                                .background(color = MaterialTheme.colorScheme.inverseOnSurface),
+                        ) {
+                            Text(product.title, modifier = Modifier.padding(5.dp), maxLines = 1,
+                                overflow = TextOverflow.Ellipsis)
+                            Text("$${product.price}", modifier = Modifier.padding(3.dp), fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -232,9 +267,11 @@ fun CategoriesComp(modifier: Modifier = Modifier, navController: NavController) 
             Text(
                 text = "See All",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(10.dp).clickable {
-                    navController.navigate(Screen.ListCategaries.route)
-                }
+                modifier = Modifier
+                    .padding(10.dp)
+                    .clickable {
+                        navController.navigate(Screen.ListCategaries.route)
+                    }
             )
         }
         Spacer(modifier = Modifier.height(10.dp))
@@ -246,7 +283,9 @@ fun CategoriesComp(modifier: Modifier = Modifier, navController: NavController) 
             items(
                 count = 200, key = {it}){
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(10.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Image(
