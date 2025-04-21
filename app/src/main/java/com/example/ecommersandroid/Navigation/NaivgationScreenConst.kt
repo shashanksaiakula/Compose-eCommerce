@@ -6,7 +6,6 @@ sealed class NaivgationScreenConst(val route: String) {
     object TellAoutYou : NaivgationScreenConst("tellAoutYou")
     object Forgot : NaivgationScreenConst("forgot")
     object Main : NaivgationScreenConst("main")
-    class Secreen2 : NaivgationScreenConst("screen2/{isClicked}")
 }
 
 sealed class Screen(val route: String) {
@@ -16,6 +15,7 @@ sealed class Screen(val route: String) {
     object Cart: Screen("cart_screen")
     object ListCategaries : NaivgationScreenConst("list_categaries")
     object Address :  Screen("address")
+    object DetailScreen : NaivgationScreenConst("detail_screen/{id}")
 }
 
 sealed class BottomNavigationScreen(val route: String) {

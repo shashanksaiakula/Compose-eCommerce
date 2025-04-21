@@ -156,13 +156,13 @@ fun HomeScreen(modifier: Modifier = Modifier, navController: NavController) {
         Spacer(modifier = Modifier.height(10.dp))
         CategoriesComp(navController = navController)
         Spacer(modifier = Modifier.height(10.dp))
-        ShowItems(productList)
+        ShowItems(productList,navController)
     }
 
 }
 
 @Composable
-fun ShowItems(productList: SnapshotStateList<Product>) {
+fun ShowItems(productList: SnapshotStateList<Product>, navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth(),
@@ -219,7 +219,10 @@ fun ShowItems(productList: SnapshotStateList<Product>) {
                             .weight(1f)
                             .padding(10.dp)
                             .border(width = 1.dp, shape = RoundedCornerShape(10.dp), color = Color.Gray)
-                            .height(250.dp),
+                            .height(250.dp)
+                            .clickable {
+                                navController.navigate("detail_screen/${product.id}")
+                            },
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {

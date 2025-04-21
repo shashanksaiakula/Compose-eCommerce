@@ -32,6 +32,7 @@ import com.example.ecommersandroid.screens.AddressScreen
 import com.example.ecommersandroid.screens.ProfileScreen
 import com.example.ecommersandroid.screens.forgot.ForgotScreen
 import com.example.ecommersandroid.screens.shoping.CartScreen
+import com.example.ecommersandroid.screens.shoping.DetailsScreen
 import com.example.ecommersandroid.screens.shoping.HomeScreen
 import com.example.ecommersandroid.screens.shoping.SettingScreen
 import com.example.ecommersandroid.screens.shoping.ShopCategories
@@ -152,6 +153,12 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
         composable(Screen.Address.route) {
             AddressScreen(navController = rootNavController)
+        }
+        composable("detail_screen/{id}") { navBackStackEntry ->
+            val id = navBackStackEntry.arguments?.getString("id")
+            if (id != null) {
+                DetailsScreen(id = id)
+            }
         }
     }
 }
