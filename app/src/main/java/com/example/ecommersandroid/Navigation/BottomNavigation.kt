@@ -157,7 +157,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         composable("detail_screen/{id}") { navBackStackEntry ->
             val id = navBackStackEntry.arguments?.getString("id")
             if (id != null) {
-                DetailsScreen(id = id)
+                DetailsScreen(id = id, navController = rootNavController)
             }
         }
     }
