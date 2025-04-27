@@ -1,14 +1,18 @@
 package com.example.ecommersandroid.screens.SignIn
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,7 +36,7 @@ import com.example.ecommersandroid.components.CustomEditField
 import com.example.ecommersandroid.components.IconWithTextComponet
 
 @Composable
-fun SignInScreen(modifier: Modifier = Modifier,navController: NavController) {
+fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
 
     BackHandler { }
     val signInViewModel = SignInViewModel()
@@ -43,6 +47,7 @@ fun SignInScreen(modifier: Modifier = Modifier,navController: NavController) {
 
     var isEmailValid by remember { mutableStateOf(false) }
     var isPasswordValid by remember { mutableStateOf(false) }
+    var progress by remember { mutableStateOf("") }
 
     LaunchedEffect(email) {
         if (email.isNotEmpty()) {
@@ -59,7 +64,24 @@ fun SignInScreen(modifier: Modifier = Modifier,navController: NavController) {
             isPasswordValid = false
         }
     }
+    LaunchedEffect(progress) {
+        if(progress == "") {
 
+        } else if(signInViewModel.signIn()) {
+            progress = "false"
+        } else {
+            progress = "true"
+        }
+    }
+
+
+        if (progress == "true") {
+        Box(modifier = Modifier.fillMaxSize().background(colorResource(R.color.lodder).copy(alpha = 0.5f))) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center), color = colorResource(R.color.ylate)
+            )
+        }
+    }
     Column(
         modifier = Modifier.padding(10.dp),
         verticalArrangement = Arrangement.Center,
@@ -72,14 +94,24 @@ fun SignInScreen(modifier: Modifier = Modifier,navController: NavController) {
             fontSize = 22.sp
         )
         Spacer(Modifier.height(50.dp))
-        CustomEditField(value = email, onValueChange = {
-            email = it
-        }, placeholder = stringResource(R.string.email_address), isPassword = false,
-            error = isEmailValid)
-        CustomEditField(value = password, onValueChange = {
-            password = it
-        }, placeholder = stringResource(R.string.password), isPassword = true,
-            error = isPasswordValid)
+        CustomEditField(
+            value = email,
+            onValueChange = {
+                email = it
+            },
+            placeholder = stringResource(R.string.email_address),
+            isPassword = false,
+            error = isEmailValid
+        )
+        CustomEditField(
+            value = password,
+            onValueChange = {
+                password = it
+            },
+            placeholder = stringResource(R.string.password),
+            isPassword = true,
+            error = isPasswordValid
+        )
         CustomButton(
             buttonText = stringResource(R.string.sing_in),
             textColor = Color.White,
@@ -90,20 +122,24 @@ fun SignInScreen(modifier: Modifier = Modifier,navController: NavController) {
             isButtonClick = true
             isEmailValid = !signInViewModel.validateEmail(email)
             isPasswordValid = !signInViewModel.validatePassword(password)
-            if(!isEmailValid && !isPasswordValid) {
-                signInViewModel.signIn()
-                navController.navigate(NaivgationScreenConst.TellAoutYou.route)
+            if (!isEmailValid && !isPasswordValid) {
+                if (signInViewModel.signIn()) {
+                    progress = "false"
+                    navController.navigate(NaivgationScreenConst.TellAoutYou.route)
+                } else {
+                    progress = "true"
+                }
             }
         }
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start
         ) {
             Text(
-                stringResource(R.string.don_t_have_an_account) +" ",
-                fontSize = 14.sp
+                stringResource(R.string.don_t_have_an_account) + " ", fontSize = 14.sp
             )
-            Text(stringResource(R.string.create_one), fontWeight = FontWeight.Bold,
+            Text(
+                stringResource(R.string.create_one),
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable {
                     navController.navigate(NaivgationScreenConst.SignUp.route)
                 })
@@ -111,31 +147,27 @@ fun SignInScreen(modifier: Modifier = Modifier,navController: NavController) {
         }
         Spacer(Modifier.height(10.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Start
+            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start
         ) {
             Text(
-                stringResource(R.string.forget_password) + " ",
-                fontSize = 14.sp
+                stringResource(R.string.forget_password) + " ", fontSize = 14.sp
             )
             Text(
-                stringResource(R.string.reset), fontWeight = FontWeight.Bold,
+                stringResource(R.string.reset),
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier.clickable {
                     navController.navigate(NaivgationScreenConst.Forgot.route)
                 })
         }
         Spacer(Modifier.height(50.dp))
         IconWithTextComponet(
-            text = stringResource(R.string.continue_with_apple),
-            iamge = R.drawable.apple
+            text = stringResource(R.string.continue_with_apple), iamge = R.drawable.apple
         ) {}
         IconWithTextComponet(
-            text = stringResource(R.string.continue_with_google),
-            iamge = R.drawable.google
+            text = stringResource(R.string.continue_with_google), iamge = R.drawable.google
         ) {}
         IconWithTextComponet(
-            text = stringResource(R.string.continue_with_facebook),
-            iamge = R.drawable.facebook
+            text = stringResource(R.string.continue_with_facebook), iamge = R.drawable.facebook
         ) {}
     }
 }

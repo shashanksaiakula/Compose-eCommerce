@@ -2,8 +2,13 @@ package com.example.ecommersandroid.screens.SignIn
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.ecommersandroid.AuthFLowServices.AuthFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class SignInViewModel : ViewModel() {
 
@@ -11,6 +16,15 @@ class SignInViewModel : ViewModel() {
     val email: StateFlow<String> = _email
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
+
+    // https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBaphpxfe2Wz5FjEpQtDfI9dZSCk2bY6DE
+    val retrofit = Retrofit.Builder()
+        .baseUrl("https://identitytoolkit.googleapis.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+
+
+
 
     fun validateEmail(email: String): Boolean {
         if(email.isEmpty()) return false
@@ -31,8 +45,25 @@ class SignInViewModel : ViewModel() {
         return true
     }
 
-    fun signIn() {
-            Log.d("check", "signIn: ${this.email.value} \n ${this.password.value}")
+    fun signIn() : Boolean {
+        var isSuccess = false
+        val body = HashMap<String, String>()
+        body["email"] = email.value
+        body["password"] = password.value
+        body["returnSecureToken"] = "true"
+        viewModelScope.launch {
+           val response = retrofit.create(AuthFlow::class.java).signInWithPassword(
+               "AIzaSyBaphpxfe2Wz5FjEpQtDfI9dZSCk2bY6DE",
+              body
+           )
+            if(response.isSuccessful) {
+                Log.d("check", "signIn: ${response.body()}")
+               isSuccess = true
+            }else if(response.errorBody() != null)
+                Log.e("check", "signIn: ${response.errorBody()!!.string()}")
+                isSuccess = true
+        }
+       return isSuccess
     }
 
     fun validatFirname(fname: String): Boolean {
@@ -49,5 +80,7 @@ class SignInViewModel : ViewModel() {
     fun sinUp() {
         Log.d("check", "signIn: ${this.email.value} \n ${this.password.value}")
     }
+
+
 
 }
