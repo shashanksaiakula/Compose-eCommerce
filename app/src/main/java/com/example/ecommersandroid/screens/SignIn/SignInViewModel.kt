@@ -3,28 +3,40 @@ package com.example.ecommersandroid.screens.SignIn
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.ecommersandroid.AuthFLowServices.AuthFlow
+import coil3.network.NetworkRequestBody
+import com.example.ecommersandroid.Repo.AuthFlowImp
+import com.example.ecommersandroid.data.AccoutDetails
+import com.example.ecommersandroid.data.SingIn
+import com.example.ecommersandroid.screens.shoping.HomeScreen
+import com.example.ecommersandroid.utils.Constansts
+import com.example.ecommersandroid.utils.NetworkCall
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-
-class SignInViewModel : ViewModel() {
+import javax.inject.Inject
+@HiltViewModel
+class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp)  : ViewModel() {
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
 
-    // https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBaphpxfe2Wz5FjEpQtDfI9dZSCk2bY6DE
-    val retrofit = Retrofit.Builder()
-        .baseUrl("https://identitytoolkit.googleapis.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    private val _signIn = MutableStateFlow<NetworkCall<SingIn>>(NetworkCall.Loading)
+    val signIn: StateFlow<NetworkCall<SingIn>> = _signIn
 
+    private val _login = MutableStateFlow<NetworkCall<SingIn>>(NetworkCall.Loading)
+    val sinUp = _login
 
+    private val _profile = MutableStateFlow<NetworkCall<Any>>(NetworkCall.Loading)
+    val profile = _profile
 
+    private val _emaiVaerify = MutableStateFlow<NetworkCall<Any>>(NetworkCall.Loading)
+    val emaiVaerify = _emaiVaerify
+
+    private val _accountDetails = MutableStateFlow<NetworkCall<AccoutDetails>>(NetworkCall.Loading)
+    val accountDetails = _accountDetails
 
     fun validateEmail(email: String): Boolean {
         if(email.isEmpty()) return false
@@ -45,25 +57,22 @@ class SignInViewModel : ViewModel() {
         return true
     }
 
-    fun signIn() : Boolean {
-        var isSuccess = false
+    fun signIn()  {
         val body = HashMap<String, String>()
         body["email"] = email.value
         body["password"] = password.value
         body["returnSecureToken"] = "true"
         viewModelScope.launch {
-           val response = retrofit.create(AuthFlow::class.java).signInWithPassword(
-               "AIzaSyBaphpxfe2Wz5FjEpQtDfI9dZSCk2bY6DE",
-              body
+           val response = authFlowImp.SingIn(
+               body,
+               Constansts.KEY
            )
-            if(response.isSuccessful) {
-                Log.d("check", "signIn: ${response.body()}")
-               isSuccess = true
-            }else if(response.errorBody() != null)
-                Log.e("check", "signIn: ${response.errorBody()!!.string()}")
-                isSuccess = true
-        }
-       return isSuccess
+            if (response.isSuccessful){
+                _signIn.value = response.body()?.let { NetworkCall.Success(it) }!!
+            }else{
+                _signIn.value = response.errorBody()?.let { NetworkCall.Error(it.string()) }!!
+            }
+            }
     }
 
     fun validatFirname(fname: String): Boolean {
@@ -78,9 +87,64 @@ class SignInViewModel : ViewModel() {
     }
 
     fun sinUp() {
-        Log.d("check", "signIn: ${this.email.value} \n ${this.password.value}")
+           val body = HashMap<String, String>()
+           body["email"] = email.value
+           body["password"] = password.value
+           body["returnSecureToken"] = "true"
+       viewModelScope.launch {
+           val response= authFlowImp.SingUp(Constansts.KEY,
+               body
+               )
+        if(response.isSuccessful){
+           _login.value= response.body()?.let { NetworkCall.Success(it) }!!
+        } else{
+            _login.value = response.errorBody()?.let { NetworkCall.Error(it.toString()) }!!
+        }
+       }
     }
 
+    fun updateUserProfile(name : String, refeshToken : String, idToken : String){
+            val body = HashMap<String, String>()
+            body["idToken"] = idToken
+            body["displayName"] = name
+            body["grant_type"] = "refresh_token"
+            body["refresh_token"] = refeshToken
+        viewModelScope.launch {
+            val response = authFlowImp.updateUserProfile(key = Constansts.KEY,
+                body)
+            if(response.isSuccessful){
+                _profile.value = response.body()?.let { NetworkCall.Success(it) }!!
+            } else{
+                _password.value = response.errorBody()?.let { NetworkCall.Error(it.string()) }.toString()
+            }
+        }
+    }
 
+    fun sendEnailVarify(idToken: String) {
+        val body = HashMap<String, String>()
+        body["requestType"] = "VERIFY_EMAIL"
+        body["idToken"] = idToken
+        viewModelScope.launch {
+            val response = authFlowImp.sendEmailVerfit(Constansts.KEY,body)
+            if(response.isSuccessful) {
+                _emaiVaerify.value = response.body()?.let { NetworkCall.Success(it) }!!
+            } else{
+                _emaiVaerify.value = response.errorBody()?.let{ NetworkCall.Error(it.toString()) }!!
+            }
+        }
+    }
 
+    fun accountDetails(idToken: String){
+        val body = HashMap<String, String>()
+        body["requestType"] = "VERIFY_EMAIL"
+        body["idToken"] = idToken
+        viewModelScope.launch {
+            val response = authFlowImp.accoutDetails(Constansts.KEY,body)
+            if(response.isSuccessful){
+                _accountDetails.value = response.body()?.let { NetworkCall.Success(it) }!!
+            } else{
+                _accountDetails. value = response.errorBody()?.let { NetworkCall.Error(it.toString()) }!!
+            }
+        }
+    }
 }

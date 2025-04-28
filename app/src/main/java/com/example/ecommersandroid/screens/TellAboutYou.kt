@@ -1,8 +1,6 @@
 package com.example.ecommersandroid.screens
 
 import android.os.Build
-import android.os.Handler
-import android.os.Looper
 import android.widget.NumberPicker
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -28,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
-import com.example.ecommersandroid.Navigation.NaivgationScreenConst
+import com.example.ecommersandroid.navigation.NaivgationScreenConst
 import com.example.ecommersandroid.R
 import com.example.ecommersandroid.components.CustomButton
 

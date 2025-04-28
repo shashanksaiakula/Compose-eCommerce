@@ -1,5 +1,7 @@
 package com.example.ecommersandroid.screens.SignupScreen
 
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,23 +24,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.ecommersandroid.Navigation.NaivgationScreenConst
+import com.example.ecommersandroid.navigation.NaivgationScreenConst
 import com.example.ecommersandroid.R
 import com.example.ecommersandroid.components.CustomButton
 import com.example.ecommersandroid.components.CustomEditField
+import com.example.ecommersandroid.data.SingIn
 import com.example.ecommersandroid.screens.SignIn.SignInViewModel
+import com.example.ecommersandroid.utils.CustomLoder
+import com.example.ecommersandroid.utils.NetworkCall
 
 @Composable
 fun SingUpScreen(modifier: Modifier = Modifier,navController: NavController) {
 
-    val signInViewModel = SignInViewModel()
+    val signInViewModel = hiltViewModel<SignInViewModel>()
     var firstName by remember { mutableStateOf("") }
     var lastName by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -48,6 +56,10 @@ fun SingUpScreen(modifier: Modifier = Modifier,navController: NavController) {
     var isPasswordValid by remember { mutableStateOf(false) }
     var isFirstNameValid by remember { mutableStateOf(false) }
     var isLastNameValid by remember { mutableStateOf(false) }
+
+    val signUp by signInViewModel.sinUp.collectAsState()
+    val profile by signInViewModel.profile.collectAsState()
+    val context = LocalContext.current
 
 
     LaunchedEffect(email) {
@@ -80,8 +92,32 @@ fun SingUpScreen(modifier: Modifier = Modifier,navController: NavController) {
         }
     }
 
-    BackHandler { }
+    LaunchedEffect(signUp) {
+       if(signUp is NetworkCall.Success) {
+         val loginData = (signUp as NetworkCall.Success).response
+           signInViewModel.updateUserProfile(idToken = loginData.idToken, refeshToken = loginData.refreshToken, name = "${firstName} ${lastName}" )
+       } else if(signUp is NetworkCall.Error) {
+           Toast.makeText(context,signUp.toString(), Toast.LENGTH_SHORT).show()
+       }
+    }
+    LaunchedEffect(profile) {
+        if(profile is NetworkCall.Success){
+            val response = (profile as NetworkCall.Success).response
+            val loginData = (signUp as NetworkCall.Success).response
+            Log.e("check", "SingUpScreen: "+response)
+            navController.navigate("email_varify/${loginData.idToken}")
+        } else if(profile is NetworkCall.Error) {
+            val message = (profile as NetworkCall.Error).error
+            Log.e("check", "SingUpScreen: "+message)
+            Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
+        }
 
+    }
+
+    BackHandler { }
+if((signUp is NetworkCall.Loading || profile is NetworkCall.Loading) && isButtonClick){
+    CustomLoder()
+}
     Column(
         modifier = Modifier.padding(10.dp),
         verticalArrangement = Arrangement.Center,
