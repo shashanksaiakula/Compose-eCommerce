@@ -1,4 +1,4 @@
-package com.example.ecommersandroid.Navigation
+package com.example.ecommersandroid.navigation
 
 sealed class NaivgationScreenConst(val route: String) {
     object SignIn : NaivgationScreenConst("signIn")
@@ -6,6 +6,7 @@ sealed class NaivgationScreenConst(val route: String) {
     object TellAoutYou : NaivgationScreenConst("tellAoutYou")
     object Forgot : NaivgationScreenConst("forgot")
     object Main : NaivgationScreenConst("main")
+    object EmailVarify : NaivgationScreenConst("email_varify/{idToken}")
 }
 
 sealed class Screen(val route: String) {

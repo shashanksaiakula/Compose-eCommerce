@@ -3,7 +3,6 @@ package com.example.ecommersandroid.screens.shoping
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,7 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
-import com.example.ecommersandroid.Navigation.BottomNavigationScreen
+import com.example.ecommersandroid.navigation.BottomNavigationScreen
 import com.example.ecommersandroid.R
 import com.example.ecommersandroid.data.Product
 import com.google.gson.Gson

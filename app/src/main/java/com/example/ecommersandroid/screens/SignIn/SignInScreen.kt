@@ -1,5 +1,7 @@
 package com.example.ecommersandroid.screens.SignIn
 
+import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,6 +18,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,23 +26,33 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.ecommersandroid.Navigation.NaivgationScreenConst
+import com.example.ecommersandroid.navigation.NaivgationScreenConst
 import com.example.ecommersandroid.R
 import com.example.ecommersandroid.components.CustomButton
 import com.example.ecommersandroid.components.CustomEditField
 import com.example.ecommersandroid.components.IconWithTextComponet
+import com.example.ecommersandroid.data.AccoutDetails
+import com.example.ecommersandroid.utils.CustomLoder
+import com.example.ecommersandroid.utils.DataStorePreference
+import com.example.ecommersandroid.utils.NetworkCall
+
 
 @Composable
 fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
 
+    val context = LocalContext.current
     BackHandler { }
-    val signInViewModel = SignInViewModel()
+    val signInViewModel = hiltViewModel<SignInViewModel>()
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -47,7 +60,9 @@ fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
 
     var isEmailValid by remember { mutableStateOf(false) }
     var isPasswordValid by remember { mutableStateOf(false) }
-    var progress by remember { mutableStateOf("") }
+    val signResponse by signInViewModel.signIn.collectAsState()
+    val accoutDetails by signInViewModel.accountDetails.collectAsState()
+     val dataStore = DataStorePreference(context)
 
     LaunchedEffect(email) {
         if (email.isNotEmpty()) {
@@ -64,23 +79,38 @@ fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
             isPasswordValid = false
         }
     }
-    LaunchedEffect(progress) {
-        if(progress == "") {
-
-        } else if(signInViewModel.signIn()) {
-            progress = "false"
+    LaunchedEffect(signResponse) {
+        if (signResponse is NetworkCall.Success) {
+            val signInData = (signResponse as NetworkCall.Success).response
+            dataStore.setData("refreshToken", signInData.refreshToken)
+            dataStore.setData("token", signInData.idToken)
+            signInViewModel.accountDetails(signInData.idToken)
         } else {
-            progress = "true"
+            if (signResponse is NetworkCall.Error) {
+                Log.d("check", "SignInScreen: " + signResponse)
+                Toast.makeText(context, "${signResponse}", Toast.LENGTH_SHORT,).show()
+                isButtonClick = false
+            }
         }
     }
 
-
-        if (progress == "true") {
-        Box(modifier = Modifier.fillMaxSize().background(colorResource(R.color.lodder).copy(alpha = 0.5f))) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center), color = colorResource(R.color.ylate)
-            )
+    LaunchedEffect(accoutDetails) {
+        if(accoutDetails is NetworkCall.Success) {
+            val account : AccoutDetails = (accoutDetails as NetworkCall.Success).response
+            if(account.users.get(0).emailVerified) {
+                navController.navigate(NaivgationScreenConst.TellAoutYou.route)
+            } else{
+                navController.navigate(NaivgationScreenConst.EmailVarify.route)
+            }
+        } else if(accoutDetails is NetworkCall.Error) {
+            val error = (accoutDetails as NetworkCall.Error).error
+            Toast.makeText(context,error.toString(), Toast.LENGTH_SHORT).show()
+            isButtonClick = false
         }
+    }
+
+        if ((signResponse is NetworkCall.Loading || accoutDetails is NetworkCall.Loading) && isButtonClick) {
+            CustomLoder()
     }
     Column(
         modifier = Modifier.padding(10.dp),
@@ -123,12 +153,7 @@ fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
             isEmailValid = !signInViewModel.validateEmail(email)
             isPasswordValid = !signInViewModel.validatePassword(password)
             if (!isEmailValid && !isPasswordValid) {
-                if (signInViewModel.signIn()) {
-                    progress = "false"
-                    navController.navigate(NaivgationScreenConst.TellAoutYou.route)
-                } else {
-                    progress = "true"
-                }
+                signInViewModel.signIn()
             }
         }
         Row(

@@ -10,10 +10,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.example.ecommersandroid.Navigation.AuthNaigation
-import com.example.ecommersandroid.screens.AddressScreen
+import com.example.ecommersandroid.navigation.AuthNaigation
 import com.example.ecommersandroid.ui.theme.EcommersAndroidTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.Q)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,10 +24,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             EcommersAndroidTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-//                    AuthNaigation(modifier = Modifier.padding(innerPadding))
+                    AuthNaigation(modifier = Modifier.padding(innerPadding))
 //                    MainScreen(modifier = Modifier.padding(innerPadding))
 //                    CartScreen(modifier = Modifier.padding(innerPadding))
-                    AddressScreen(navController = null, modifier = Modifier.padding(innerPadding))
+//                    AddressScreen(navController = null,modifier = Modifier.padding(innerPadding))
                 }
             }
         }

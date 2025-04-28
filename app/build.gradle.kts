@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.devtools.ksp)
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -39,6 +41,7 @@ android {
     }
 }
 
+
 dependencies {
 
     implementation(libs.androidx.core.ktx)
@@ -61,13 +64,26 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-
+    // coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 
+    // corotines
+    implementation(libs.kotlinx.coroutines.android)
 
+    //retrofit
     implementation(libs.gson)
     implementation (libs.retrofit)
     implementation (libs.converter.gson)
+
+    //hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.symbol.processing.api)
+    implementation(libs.androidx.hilt.navigation.fragment)
+    implementation(libs.hilt.navigation.compose)
+
+    //datastore
+    implementation(libs.androidx.datastore.preferences)
 
 }

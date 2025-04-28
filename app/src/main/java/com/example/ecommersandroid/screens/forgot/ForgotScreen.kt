@@ -27,8 +27,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.ecommersandroid.Navigation.NaivgationScreenConst
+import com.example.ecommersandroid.navigation.NaivgationScreenConst
 import com.example.ecommersandroid.R
 import com.example.ecommersandroid.components.CustomButton
 import com.example.ecommersandroid.components.CustomEditField
@@ -37,7 +38,7 @@ import com.example.ecommersandroid.screens.SignIn.SignInViewModel
 @Composable
 fun ForgotScreen(modifier: Modifier = Modifier,navController: NavController) {
 
-    val signInViewModel = SignInViewModel()
+    val signInViewModel = hiltViewModel<SignInViewModel>()
 
     var email by remember { mutableStateOf("") }
     var isEmailValid by remember { mutableStateOf(false) }
