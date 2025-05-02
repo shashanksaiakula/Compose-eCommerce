@@ -17,11 +17,13 @@ import androidx.compose.material.icons.filled.NavigateNext
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -30,9 +32,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.ecommersandroid.navigation.Screen
 import com.example.ecommersandroid.R
+import com.example.ecommersandroid.navigation.NaivgationScreenConst
+import com.example.ecommersandroid.utils.DataStorePreference
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun ProfileScreen(navController: NavController,modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    val dataStore = DataStorePreference(context)
     Column (
         modifier = Modifier
             .fillMaxWidth()
@@ -105,7 +112,12 @@ fun ProfileScreen(navController: NavController,modifier: Modifier = Modifier) {
 
             }
         }
-        Text("Sign Out", fontWeight = FontWeight.Bold, color = Color.Red, fontSize = 20.sp)
+        Text("Sign Out", fontWeight = FontWeight.Bold, color = Color.Red, fontSize = 20.sp, modifier = Modifier.clickable() {
+            runBlocking {
+                dataStore.clearDataStore(context)
+            }
+            navController.navigate(NaivgationScreenConst.SignIn.route)
+        })
     }
 }
 

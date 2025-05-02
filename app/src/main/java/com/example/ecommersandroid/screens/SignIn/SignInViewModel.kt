@@ -1,22 +1,27 @@
 package com.example.ecommersandroid.screens.SignIn
 
-import android.util.Log
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import coil3.network.NetworkRequestBody
 import com.example.ecommersandroid.Repo.AuthFlowImp
 import com.example.ecommersandroid.data.AccoutDetails
 import com.example.ecommersandroid.data.SingIn
-import com.example.ecommersandroid.screens.shoping.HomeScreen
 import com.example.ecommersandroid.utils.Constansts
+import com.example.ecommersandroid.utils.DataStorePreference
+import com.example.ecommersandroid.utils.ErrorHandling
 import com.example.ecommersandroid.utils.NetworkCall
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
+
 @HiltViewModel
-class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp)  : ViewModel() {
+class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp ,
+                                          @ApplicationContext private val context: Context)  : ViewModel() {
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
@@ -37,6 +42,9 @@ class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp) 
 
     private val _accountDetails = MutableStateFlow<NetworkCall<AccoutDetails>>(NetworkCall.Loading)
     val accountDetails = _accountDetails
+
+    private val _tokeUpdate = MutableStateFlow<NetworkCall<Any>>(NetworkCall.Loading)
+    val tokenUpdate = _tokeUpdate
 
     fun validateEmail(email: String): Boolean {
         if(email.isEmpty()) return false
@@ -68,9 +76,12 @@ class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp) 
                Constansts.KEY
            )
             if (response.isSuccessful){
+                response.body()?.let {
+                }
                 _signIn.value = response.body()?.let { NetworkCall.Success(it) }!!
-            }else{
-                _signIn.value = response.errorBody()?.let { NetworkCall.Error(it.string()) }!!
+            }else {
+                val errorMessage = response.errorBody()?.string()?.let { ErrorHandling.getErrorMessage(it) }
+                _signIn.value = NetworkCall.Error(errorMessage)
             }
             }
     }
@@ -95,10 +106,10 @@ class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp) 
            val response= authFlowImp.SingUp(Constansts.KEY,
                body
                )
-        if(response.isSuccessful){
+        if (response.isSuccessful) {
            _login.value= response.body()?.let { NetworkCall.Success(it) }!!
         } else{
-            _login.value = response.errorBody()?.let { NetworkCall.Error(it.toString()) }!!
+            _login.value = response.errorBody()?.let { NetworkCall.Error(ErrorHandling.getErrorMessage(it.string())) }!!
         }
        }
     }
@@ -112,10 +123,11 @@ class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp) 
         viewModelScope.launch {
             val response = authFlowImp.updateUserProfile(key = Constansts.KEY,
                 body)
-            if(response.isSuccessful){
+            if(response.isSuccessful) {
                 _profile.value = response.body()?.let { NetworkCall.Success(it) }!!
             } else{
-                _password.value = response.errorBody()?.let { NetworkCall.Error(it.string()) }.toString()
+                _profile.value = response.errorBody()?.let { NetworkCall.Error(ErrorHandling.getErrorMessage(it.string())) }!!
+
             }
         }
     }
@@ -129,21 +141,35 @@ class SignInViewModel @Inject constructor(private val authFlowImp: AuthFlowImp) 
             if(response.isSuccessful) {
                 _emaiVaerify.value = response.body()?.let { NetworkCall.Success(it) }!!
             } else{
-                _emaiVaerify.value = response.errorBody()?.let{ NetworkCall.Error(it.toString()) }!!
+                _emaiVaerify.value = response.errorBody()?.let{ NetworkCall.Error(ErrorHandling.getErrorMessage(it.string())) }!!
             }
         }
     }
 
-    fun accountDetails(idToken: String){
+    fun accountDetails(idToken: String) {
         val body = HashMap<String, String>()
-        body["requestType"] = "VERIFY_EMAIL"
+//        body["requestType"] = "VERIFY_EMAIL"
         body["idToken"] = idToken
         viewModelScope.launch {
             val response = authFlowImp.accoutDetails(Constansts.KEY,body)
             if(response.isSuccessful){
                 _accountDetails.value = response.body()?.let { NetworkCall.Success(it) }!!
             } else{
-                _accountDetails. value = response.errorBody()?.let { NetworkCall.Error(it.toString()) }!!
+                _accountDetails. value = response.errorBody()?.let { NetworkCall.Error(ErrorHandling.getErrorMessage(it.string()))  }!!
+            }
+        }
+    }
+
+    fun tokenUpdate(refreshToken : String){
+        val body = HashMap<String, String>()
+        body["grant_type"] ="refresh_token"
+        body["refresh_token"] = refreshToken
+        viewModelScope.launch {
+            val response = authFlowImp.tokenUpdate(Constansts.KEY,body)
+            if(response.isSuccessful){
+                _tokeUpdate.value = response.body()?.let{ NetworkCall.Success(it) }!!
+            } else {
+                _tokeUpdate.value = response.errorBody()?.let { NetworkCall.Error(ErrorHandling.getErrorMessage(it.string())) }!!
             }
         }
     }

@@ -45,6 +45,8 @@ import com.example.ecommersandroid.data.AccoutDetails
 import com.example.ecommersandroid.utils.CustomLoder
 import com.example.ecommersandroid.utils.DataStorePreference
 import com.example.ecommersandroid.utils.NetworkCall
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -82,14 +84,21 @@ fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
     LaunchedEffect(signResponse) {
         if (signResponse is NetworkCall.Success) {
             val signInData = (signResponse as NetworkCall.Success).response
-            dataStore.setData("refreshToken", signInData.refreshToken)
-            dataStore.setData("token", signInData.idToken)
+            withContext(Dispatchers.IO) {
+                dataStore.setData("refreshToken", signInData.refreshToken)
+                dataStore.setData("token", signInData.idToken)
+
+                val checkRefresh = dataStore.getData("refreshToken")
+                val checkToken = dataStore.getData("token")
+                Log.e("check", "confirm save refreshToken: $checkRefresh")
+                Log.e("check", "confirm save token: $checkToken")
+            }
             signInViewModel.accountDetails(signInData.idToken)
         } else {
             if (signResponse is NetworkCall.Error) {
-                Log.d("check", "SignInScreen: " + signResponse)
-                Toast.makeText(context, "${signResponse}", Toast.LENGTH_SHORT,).show()
                 isButtonClick = false
+                val error = (signResponse as NetworkCall.Error).error
+                Toast.makeText(context, error?.message, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -104,7 +113,7 @@ fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
             }
         } else if(accoutDetails is NetworkCall.Error) {
             val error = (accoutDetails as NetworkCall.Error).error
-            Toast.makeText(context,error.toString(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, error?.message, Toast.LENGTH_SHORT).show()
             isButtonClick = false
         }
     }
@@ -149,10 +158,11 @@ fun SignInScreen(modifier: Modifier = Modifier, navController: NavController) {
                 R.color.ylate
             )
         ) {
-            isButtonClick = true
+
             isEmailValid = !signInViewModel.validateEmail(email)
             isPasswordValid = !signInViewModel.validatePassword(password)
             if (!isEmailValid && !isPasswordValid) {
+                isButtonClick = true
                 signInViewModel.signIn()
             }
         }

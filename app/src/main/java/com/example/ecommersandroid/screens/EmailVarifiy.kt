@@ -63,8 +63,8 @@ fun EmailVarifiy(modifier: Modifier = Modifier, navController: NavController, id
 
         when (varfiyEmail) {
             is NetworkCall.Error -> {
-                val message = (varfiyEmail as NetworkCall.Error).error
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).toString()
+                val error = (varfiyEmail as NetworkCall.Error).error
+                Toast.makeText(context, error?.message, Toast.LENGTH_SHORT).toString()
                 isButtonClick = false
             }
 

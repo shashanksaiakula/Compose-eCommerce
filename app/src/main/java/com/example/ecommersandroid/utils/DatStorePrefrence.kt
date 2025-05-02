@@ -37,4 +37,9 @@ class DataStorePreference(private val context: Context) {
             }
         }
     }
+    suspend fun clearDataStore(context: Context) {
+        context.dataStore.edit { preferences ->
+            preferences.clear()
+        }
+    }
 }

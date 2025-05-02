@@ -24,4 +24,7 @@ class AuthFlowImp @Inject constructor(private val authFlow : AuthFlow) {
     suspend fun accoutDetails(key: String,body: HashMap<String, String>) : Response<AccoutDetails>{
         return authFlow.accoutDetails(key,body)
     }
+    suspend fun tokenUpdate(key: String, body : HashMap<String, String>) : Response<Any>{
+        return authFlow.tokenUpdate(key,body)
+    }
 }

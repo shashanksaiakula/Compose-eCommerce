@@ -1,5 +1,6 @@
 package com.example.ecommersandroid.screens.SignupScreen
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
@@ -42,6 +43,7 @@ import com.example.ecommersandroid.screens.SignIn.SignInViewModel
 import com.example.ecommersandroid.utils.CustomLoder
 import com.example.ecommersandroid.utils.NetworkCall
 
+@SuppressLint("SuspiciousIndentation")
 @Composable
 fun SingUpScreen(modifier: Modifier = Modifier,navController: NavController) {
 
@@ -109,7 +111,7 @@ fun SingUpScreen(modifier: Modifier = Modifier,navController: NavController) {
         } else if(profile is NetworkCall.Error) {
             val message = (profile as NetworkCall.Error).error
             Log.e("check", "SingUpScreen: "+message)
-            Toast.makeText(context,message,Toast.LENGTH_SHORT).show()
+            Toast.makeText(context,message?.message,Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -177,12 +179,13 @@ if((signUp is NetworkCall.Loading || profile is NetworkCall.Loading) && isButton
                 R.color.ylate
             )
         ) {
-            isButtonClick = true
+
             isEmailValid = !signInViewModel.validateEmail(email)
             isPasswordValid = !signInViewModel.validatePassword(password)
             isLastNameValid = !signInViewModel.validatLname(lastName)
             isFirstNameValid = !signInViewModel.validatFirname(firstName)
             if (!isEmailValid && !isPasswordValid && !isFirstNameValid && !isLastNameValid) {
+                isButtonClick = true
                 signInViewModel.sinUp()
             }
         }

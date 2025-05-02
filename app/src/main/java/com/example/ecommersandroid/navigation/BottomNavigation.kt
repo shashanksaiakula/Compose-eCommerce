@@ -27,6 +27,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.ecommersandroid.screens.AddressScreen
 import com.example.ecommersandroid.screens.ProfileScreen
+import com.example.ecommersandroid.screens.SignIn.SignInScreen
 import com.example.ecommersandroid.screens.forgot.ForgotScreen
 import com.example.ecommersandroid.screens.shoping.CartScreen
 import com.example.ecommersandroid.screens.shoping.DetailsScreen
@@ -156,6 +157,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
             if (id != null) {
                 DetailsScreen(id = id, navController = rootNavController)
             }
+        }
+        composable(NaivgationScreenConst.SignIn.route) {
+            SignInScreen(navController = rootNavController)
         }
     }
 }

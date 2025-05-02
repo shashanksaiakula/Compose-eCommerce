@@ -38,4 +38,11 @@ interface AuthFlow {
         @Query("key") key: String,
         @Body body: HashMap<String, String>
     ) : Response<AccoutDetails>
+
+    @POST("v1/token")
+    suspend fun tokenUpdate(
+        @Query("key") key : String,
+        @Body body: HashMap<String, String>
+    ) : Response<Any>
+
 }
